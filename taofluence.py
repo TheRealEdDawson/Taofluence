@@ -6,7 +6,7 @@ import sys
 #Checking that all required arguments (username and password) were passed.
 
 if len(sys.argv) < 3:
-    argumentsnotset = "\nError: one or more arguments were not passed. \n\nUsage is like so: \n\npython zen-create-post.py ZENDESKUSERNAME ZENDESKPASSWORD\n" 
+    argumentsnotset = "\nError: one or more arguments were not passed. \n\nUsage is like so: \n\npython taofluence.py ZENDESKUSERNAME ZENDESKPASSWORD\n" 
     print argumentsnotset
     sys.exit(1)
 
