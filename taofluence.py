@@ -3,6 +3,7 @@ import json
 from requests.auth import HTTPBasicAuth
 import sys
 import string
+import datetime
 
 #Checking that all required arguments (username and password) were passed.
 
@@ -11,31 +12,34 @@ if len(sys.argv) < 4:
     print argumentsnotset
     sys.exit(1)
 
-username = sys.argv[1]
-password = sys.argv[2]
-forum_id = sys.argv[3]
+zendesk_username = sys.argv[1]
+zendesk_password = sys.argv[2]
+zendesk_forum_id = sys.argv[3]
+zendesk_url = sys.argv[4]
+# The REST access point for creating topics in Zendesk is 'https://ninefold.zendesk.com/api/v2/topics.json'
 
-auth = HTTPBasicAuth(username,password)
+#Set up login credentials from command-line arguments
+zendesk_auth = HTTPBasicAuth(zendesk_username,zendesk_password)
 
-url = 'https://ninefold.zendesk.com/api/v2/topics.json'
+#define dymanic content to go into the page
+time_now =str(datetime.datetime.now())
+zendesk_title_text = "Test Topic from REST " + time_now
+zendesk_body_text = "This is a test created via REST API at " + time_now
 
-title_text = "Test Topic from REST"
-body_text = "This is a test created via REST API."
 jsonbit1 = '''{"topic": {"forum_id": '''
 jsonbit2 = ''', "title": \"'''
 jsonbit3 = '''\" , "body": \"''' 
 jsonbit4 = '''\"}}'''
 
-payload = jsonbit1 + forum_id + jsonbit2 + title_text + jsonbit3 + body_text + jsonbit4
-
-data=payload
+payload = jsonbit1 + zendesk_forum_id + jsonbit2 + zendesk_title_text + jsonbit3 + zendesk_body_text + jsonbit4
+zendesk_data=payload
 
 #print data , "\n" #temporary debug point
 #sys.exit(1) #temporary breakpoint
 
-headers = {'content-type': 'application/json'}
+zendesk_headers = {'content-type': 'application/json'}
 
-r = requests.post(url=url, auth=auth, data=data, headers=headers)
+r = requests.post(url=zendesk_url, auth=zendesk_auth, data=zendesk_data, headers=zendesk_headers)
 print r.text
 print r.status_code
 print r.headers
