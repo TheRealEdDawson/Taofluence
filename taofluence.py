@@ -33,32 +33,40 @@ s = s.confluence1
 confluence_token = s.login(conf_user,conf_pwd)
 # this is a "dictionary" (spaceindex)
 confluence_spaceindex = s.getPages(confluence_token, conf_space)
-print confluence_spaceindex #temporary debug point
+#print confluence_spaceindex #temporary debug point
 s.logout(confluence_token)
 
 #Set up Zendesk login credentials from command-line arguments
 zendesk_auth = HTTPBasicAuth(zendesk_username,zendesk_password)
 
-#define dynamic content to go into the Zendesk page
-time_now =str(datetime.datetime.now())
-zendesk_title_text = "Test Topic from REST " + time_now
-zendesk_body_text = "This is a test created via REST API at " + time_now
+#Loop to create new pages in Zendesk from the list of pages in Confluence.
 
-#build the JSON request that will be passed via REST
-jsonbit1 = '''{"topic": {"forum_id": '''
-jsonbit2 = ''', "title": \"'''
-jsonbit3 = '''\" , "body": \"''' 
-jsonbit4 = '''\"}}'''
-payload = jsonbit1 + zendesk_forum_id + jsonbit2 + zendesk_title_text + jsonbit3 + zendesk_body_text + jsonbit4
-zendesk_data=payload
-
-#print data , "\n" #temporary debug point
-#sys.exit(1) #temporary breakpoint
-
-zendesk_headers = {'content-type': 'application/json'}
-
-r = requests.post(url=zendesk_url, auth=zendesk_auth, data=zendesk_data, headers=zendesk_headers)
-print r.text
-print r.status_code
-print r.headers
-print r.headers['content-type']
+for page_summary in confluence_spaceindex:
+    confluence_content_url = page_summary['url']
+    confluence_content_title = page_summary['title']
+    confluence_content_version = page_summary['version']
+    confluence_content_parent = page_summary['parentId']
+    confluence_content_id = page_summary['id']
+    confluence_content_permissions = page_summary['permissions']
+    #define dynamic content to go into the Zendesk page
+    time_now =str(datetime.datetime.now())
+    zendesk_title_text = confluence_content_title + " " + time_now
+    zendesk_body_text = time_now + " " + confluence_content_id + " " + confluence_content_version + " " + confluence_content_parent + " " + confluence_content_permissions + " " + confluence_content_url
+    #build the JSON request that will be passed via REST
+    jsonbit1 = '''{"topic": {"forum_id": '''
+    jsonbit2 = ''', "title": \"'''
+    jsonbit3 = '''\" , "body": \"''' 
+    jsonbit4 = '''\"}}'''
+    payload = jsonbit1 + zendesk_forum_id + jsonbit2 + zendesk_title_text + jsonbit3 + zendesk_body_text + jsonbit4
+    zendesk_data=payload
+    print zendesk_data , "\n" #temporary debug point
+    #sys.exit(1) #temporary breakpoint
+    #Define the correct content type for REST submission
+    zendesk_headers = {'content-type': 'application/json'}
+    #Send the REST response to create the new page in Zendesk
+    r = requests.post(url=zendesk_url, auth=zendesk_auth, data=zendesk_data, headers=zendesk_headers)
+    print r.text #temporary debug point
+    print r.status_code #temporary debug point
+    print r.headers #temporary debug point
+    print r.headers['content-type'] #temporary debug point
+    #sys.exit(1) #temporary breakpoint
